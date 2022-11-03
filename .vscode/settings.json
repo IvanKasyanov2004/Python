@@ -1,0 +1,16 @@
+{
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Path": "${workspaceFolder}/env/bin/flake8",
+    "python.linting.flake8Args": ["--ignore=E501,E731 --max-line-length 100"],
+    "python.defaultInterpreterPath": "${workspaceFolder}/env/bin/python3",
+    "editor.renderControlCharacters": true,
+    "editor.renderWhitespace": "all",
+    "files.associations": {
+      "*.py": "python"
+    },
+    "files.autoSave": "afterDelay",
+    "terminal.integrated.env.linux": {
+      "PYTHONPATH": "${workspaceFolder}:${env:PYTHONPATH}",
+    },
+  }
