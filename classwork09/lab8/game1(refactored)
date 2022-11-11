@@ -1,0 +1,176 @@
+import pygame
+from pygame.draw import *
+from random import randint
+pygame.init()
+
+FPS = 100 
+screen = pygame.display.set_mode((1200, 800))
+
+rect(screen, (255, 255, 255), (15, 45, 1170, 740), 5)
+
+F = 0
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+GREEN = (0, 255, 0)
+MAGENTA = (255, 0, 255)
+CYAN = (0, 255, 255)
+BLACK = (0, 0, 0)
+COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
+BALLS = []
+
+def new_ball():
+    '''
+    Создает новый шарик.    
+    '''
+    global x, y, r
+    x = randint(130, 1070)
+    y = randint(160, 670)
+    r = randint(30, 100)
+    vx = randint(-4,4)
+    vy = randint(-4,4)
+    color = COLORS[randint(0, 5)]
+    BALLS.append([color, x, y, r, vx, vy])
+    for ball in BALLS:
+        circle(screen, ball[0], (ball[1], ball[2]), ball[3])      
+
+def hit(event, BALLS):
+    '''
+    Проверяет, есть ли попадание в шарики, закрашивает их и удаляет из массива.
+    event - событие мыши
+    BALLS - массив с шариками
+    '''
+    global n, m
+    m = 0
+    x0 = event.pos[0]
+    y0 = event.pos[1]
+    for ball in BALLS:
+        x = ball[1]
+        y = ball[2]
+        r = ball[3]
+        vx = ball[4]
+        vy = ball[5]
+        if (x - x0)**2 + (y - y0)**2 <= r**2:
+            n += int(1000*(vx**2 + vy**2)**0.5/r)
+            m += 1
+            circle(screen, BLACK, (x, y), r)
+            BALLS.remove(ball)
+
+def move():
+    '''
+    Перемещает шарики и отражает их от стенок.
+    '''
+    for ball in BALLS:
+        x = ball[1]
+        y = ball[2]
+        r = ball[3]
+        vx = ball[4]
+        vy = ball[5]
+        if ((1175 - x) <= r) or ((x - 25) <= r):
+            vx = -vx
+        if ((770 - y) <= r) or ((y - 55) <= r):
+            vy = -vy + 0.1
+        ball[1] = x + vx
+        ball[2] = y + vy
+        ball[4] = vx
+        ball[5] = vy + 0.1
+        circle(screen, ball[0], (ball[1], ball[2]), ball[3]) 
+
+def boost(n):
+    '''
+    Ускоряет появление шариков.
+    '''
+    global k
+    if n >= 100:
+        k = 300/1.5
+        rect(screen, BLACK, (800, 0, 400, 40))
+        boost = 'Boost x1.5!'
+        sur_boost = pygame.font.Font(None, 45)
+        boost = sur_boost.render(boost, True, WHITE)
+        screen.blit(boost, (1010, 10))
+    if n>=300:
+        k = 300/3
+        rect(screen, BLACK, (800, 0, 400, 45))
+        boost = 'Boost x3!'
+        sur_boost = pygame.font.Font(None, 45)
+        boost = sur_boost.render(boost, True, WHITE)
+        screen.blit(boost, (1010, 10))
+
+def update():
+    '''
+    Обновляет экран (делает его черным).
+    '''
+    rect(screen, BLACK, (20, 50, 1160, 730))
+
+def show_score(n):
+    '''
+    Выводит очки на экран.
+    '''
+    rect(screen, BLACK, (0, 0, 400, 45))
+    score = 'Score: ' + str(n)
+    sur_score = pygame.font.Font(None, 45)
+    score = sur_score.render(score, True, WHITE)
+    screen.blit(score, (20, 10))
+
+def show_kill(m):
+    '''
+    Выводит оповещение о попадании в шарик.
+    '''
+    if m == 0:
+        rect(screen, BLACK, (400, 0, 400, 45))
+        kill = ''
+        sur_kill = pygame.font.Font(None, 45)
+        kill = sur_kill.render(kill, True, WHITE)
+        screen.blit(kill, (540, 10))
+    if m == 1:
+        rect(screen, BLACK, (400, 0, 400, 45))
+        kill = 'Kill'
+        sur_kill = pygame.font.Font(None, 45)
+        kill = sur_kill.render(kill, True, WHITE)
+        screen.blit(kill, (540, 10))
+    if m == 2:
+        rect(screen, BLACK, (400, 0, 400, 45))
+        kill = 'Double Kill'
+        sur_kill = pygame.font.Font(None, 45)
+        kill = sur_kill.render(kill, True, RED)
+        screen.blit(kill, (540, 10))
+    if m == 3:
+        rect(screen, BLACK, (400, 0, 400, 45))
+        kill = 'Triple Kill'
+        sur_kill = pygame.font.Font(None, 45)
+        kill = sur_kill.render(kill, True, RED)
+        screen.blit(kill, (500, 10))
+
+
+pygame.display.update()
+clock = pygame.time.Clock()
+finished = False
+
+n = 0
+k = 300
+
+while not finished:
+    clock.tick(FPS)
+    F += 1
+    update()
+    move()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            finished = True
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            hit(event, BALLS)
+            show_score(n)
+            boost(n)
+            show_kill(m)  
+    if F > k:
+        F = 0
+        update()
+        new_ball()
+    if len(BALLS) >= 20:
+        finished = True
+    pygame.display.update()
+    
+
+pygame.quit()
+print(n)
