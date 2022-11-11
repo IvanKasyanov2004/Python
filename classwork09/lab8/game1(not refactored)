@@ -50,8 +50,6 @@ def hit(event, BALLS):
             m += 1
             circle(screen, BLACK, (x, y), r)
             BALLS.remove(ball)
-    if m >= 1:
-        return True
 
 def move():
     for ball in BALLS:
@@ -98,6 +96,12 @@ def show_score(n):
     screen.blit(score, (20,10))
 
 def show_kill(m):
+    if m == 0:
+        rect(screen, BLACK, (400,0,400,45))
+        kill = ''
+        sur_kill = pygame.font.Font(None, 45)
+        kill = sur_kill.render(kill, True, WHITE)
+        screen.blit(kill, (540,10))
     if m == 1:
         rect(screen, BLACK, (400,0,400,45))
         kill = 'Kill'
@@ -135,11 +139,10 @@ while not finished:
         if event.type == pygame.QUIT:
             finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            for ball in BALLS:
-                if hit(event, BALLS) == True:
-                    show_score(n)
-                    boost(n)
-                    show_kill(m)  
+            hit(event, BALLS)
+            show_score(n)
+            boost(n)
+            show_kill(m)  
     if F > k:
         F = 0
         update()
